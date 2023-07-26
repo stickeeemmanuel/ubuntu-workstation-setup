@@ -1,0 +1,55 @@
+---
+- name: Ansible playbook to setup local Ubuntu VM
+  hosts: localhost
+  connection: local
+  become: true
+  remote_user: root
+
+  tasks:
+    - name: Allow the eapreko user to run sudo without requiring a password
+      community.general.sudoers:
+        name: eapreko-sudo
+        state: present
+        user: eapreko
+        commands: ALL
+        nopassword: true 
+        sudoers_path: "/etc/sudoers.d"
+        setenv: true
+
+    - name: Bash - Log commands
+      ansible.builtin.lineinfile:
+        path: /etc/bash.bashrc
+        regexp: Log Bash commands
+        line: |
+          export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug "$(whoami) [$$]: $(history 1 | sed "s/^[ ]*[0-9]\+[ ]*//" ) [$RETRN_VAL]" # Added by Ansible Log Bash commands'
+
+    - name: Bash - Add date and time to history
+      ansible.builtin.copy:
+        content: "HISTTIMEFORMAT=\"%F %T \"\n"
+        dest: /etc/profile.d/history.sh
+        mode: '0644'
+    
+    # - name: Install ggshield
+    #   ansible.builtin.shell: |
+    #     curl -1sLf \
+    #       'https://dl.cloudsmith.io/public/gitguardian/ggshield/setup.deb.sh' \
+    #       | sudo -E bash
+    #     sudo apt install ggshield -y
+    
+    # - name: Enable ggshield global pre-commit hook
+    #   ansible.builtin.command: "ggshield install --mode global"
+
+    - name: Install Jumpcloud powershell module
+      ansible.builtin.shell: |
+        # Install pre-requisite packages.
+        sudo apt-get install -y wget apt-transport-https software-properties-common
+        # Download the Microsoft repository GPG keys
+        wget -q "https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb"
+        # Register the Microsoft repository GPG keys
+        sudo dpkg -i packages-microsoft-prod.deb
+        # Delete the the Microsoft repository GPG keys file
+        rm packages-microsoft-prod.deb
+        # Update the list of packages after we added packages.microsoft.com
+        sudo apt-get update
+        # Install PowerShell
+        sudo apt-get install -y powershell
