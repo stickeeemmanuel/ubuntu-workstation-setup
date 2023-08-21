@@ -57,6 +57,9 @@ terraform -install-autocomplete
 echo "Install Ansible-lint"
 pip3 install ansible-lint
 
+# Install Linode-cli
+pip3 install linode-cli --upgrade && pip3 install boto3
+
 # Add ansible-lint to PATH
 echo "\n export PATH=$PATH:/home/ubuntu/.local/bin" >> /home/ubuntu/.bashrc
 source /home/ubuntu/.bashrc

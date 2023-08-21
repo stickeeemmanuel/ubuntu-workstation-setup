@@ -29,15 +29,15 @@
         dest: /etc/profile.d/history.sh
         mode: '0644'
     
-    # - name: Install ggshield
-    #   ansible.builtin.shell: |
-    #     curl -1sLf \
-    #       'https://dl.cloudsmith.io/public/gitguardian/ggshield/setup.deb.sh' \
-    #       | sudo -E bash
-    #     sudo apt install ggshield -y
+    - name: Install ggshield
+      ansible.builtin.shell: |
+        curl -1sLf \
+          'https://dl.cloudsmith.io/public/gitguardian/ggshield/setup.deb.sh' \
+          | sudo -E bash
+        sudo apt install ggshield -y
     
-    # - name: Enable ggshield global pre-commit hook
-    #   ansible.builtin.command: "ggshield install --mode global"
+    - name: Enable ggshield global pre-commit hook
+      ansible.builtin.command: "ggshield install --mode global"
 
     - name: Install Jumpcloud powershell module
       ansible.builtin.shell: |
