@@ -46,10 +46,10 @@ sudo add-apt-repository --yes --update ppa:ansible/ansible
 sudo apt install ansible -y
 sudo apt install git-extras terminator -y
 
-# Finish installing Terraform, VSCode, pyhton3-pip, git, git-extras and Terminator
+# Finish installing Terraform, VSCode, python3-pip, git, xclip and Terminator
 sudo apt-get update 
-echo "Finish installing Terraform, VSCode, pyhton3-pip, git, git-extras and Terminator"
-sudo apt-get install terraform code python3-pip terminator -y
+echo "Finish installing Terraform, VSCode, python3-pip, git, xclip and Terminator"
+sudo apt-get install terraform code python3-pip git xclip terminator -y
 touch ~/.bashrc
 terraform -install-autocomplete
 
