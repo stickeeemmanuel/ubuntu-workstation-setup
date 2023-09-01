@@ -63,6 +63,10 @@ pip3 install linode-cli --upgrade && pip3 install boto3
 # Install Mailspring email client
 sudo snap install mailspring
 
+# Install Joplin notes app
+sudo apt install -y libfuse2
+wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash
+
 # Add ansible-lint to PATH
 echo "\n export PATH=$PATH:/home/ubuntu/.local/bin" >> /home/ubuntu/.bashrc
 source /home/ubuntu/.bashrc
