@@ -60,6 +60,9 @@ pip3 install ansible-lint
 # Install Linode-cli
 pip3 install linode-cli --upgrade && pip3 install boto3
 
+# Install Mailspring email client
+sudo snap install mailspring
+
 # Add ansible-lint to PATH
 echo "\n export PATH=$PATH:/home/ubuntu/.local/bin" >> /home/ubuntu/.bashrc
 source /home/ubuntu/.bashrc
