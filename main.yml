@@ -12,9 +12,23 @@
         state: present
         user: eapreko
         commands: ALL
-        nopassword: true 
+        nopassword: true
         sudoers_path: "/etc/sudoers.d"
         setenv: true
+
+    - name: Set the timezone to Europe/London
+      community.general.timezone:
+        name: Europe/London
+
+    - name: Restart cron daemon
+      ansible.builtin.service:
+        name: cron
+        state: "restarted"
+
+    - name: Install python3-pydrive for backups
+      ansible.builtin.package:
+        name: python3-pydrive
+        state: present
 
     - name: Bash - Log commands
       ansible.builtin.lineinfile:
@@ -28,14 +42,14 @@
         content: "HISTTIMEFORMAT=\"%F %T \"\n"
         dest: /etc/profile.d/history.sh
         mode: '0644'
-    
+
     - name: Install ggshield
       ansible.builtin.shell: |
         curl -1sLf \
           'https://dl.cloudsmith.io/public/gitguardian/ggshield/setup.deb.sh' \
           | sudo -E bash
         sudo apt install ggshield -y
-    
+
     - name: Enable ggshield global pre-commit hook
       ansible.builtin.command: "ggshield install --mode global"
 
