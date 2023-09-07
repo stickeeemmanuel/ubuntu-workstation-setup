@@ -1,4 +1,5 @@
 ---
+#  run this playbook as root
 - name: Ansible playbook to setup local Ubuntu VM
   hosts: localhost
   connection: local
@@ -25,10 +26,29 @@
         name: cron
         state: "restarted"
 
-    - name: Install python3-pydrive for backups
+    - name: Install packages
       ansible.builtin.package:
-        name: python3-pydrive
+        name:
+          - python3-pydrive #  python3-pydrive for backups
+          - jq  #  json requirements
+          - wireguard-tools #  required for pritunl vpn client
         state: present
+
+    - name: Install WPS Office software
+      ansible.builtin.apt:
+        deb: https://wdl1.pcfg.cache.wpscdn.com/wpsdl/wpsoffice/download/linux/11664/wps-office_11.1.0.11664.XA_amd64.deb
+        state: present
+
+    - name: Install pritunl vpn client
+      ansible.builtin.shell: |
+        sudo tee /etc/apt/sources.list.d/pritunl.list << EOF
+        deb https://repo.pritunl.com/stable/apt jammy main
+        EOF
+        sudo apt --assume-yes install gnupg
+        gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
+        gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
+        sudo apt update
+        sudo apt install pritunl-client-electron
 
     - name: Bash - Log commands
       ansible.builtin.lineinfile:
