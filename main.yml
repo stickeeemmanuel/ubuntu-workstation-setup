@@ -16,6 +16,8 @@
         nopassword: true
         sudoers_path: "/etc/sudoers.d"
         setenv: true
+        validation: "detect"
+      tags: no_sudo
 
     - name: Set the timezone to Europe/London
       community.general.timezone:
