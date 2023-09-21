@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #  Automate Ubuntu 22.04 service restart after app update 
-sed -ie 's/'i'/'a'/' /etc/needrestart/needrestart.conf
-sed -ie 's/#\$nrconf/\$nrconf/' /etc/needrestart/needrestart.conf 
+# sed -ie 's/'i'/'a'/' /etc/needrestart/needrestart.conf
+# sed -ie 's/#\$nrconf/\$nrconf/' /etc/needrestart/needrestart.conf
 
 #  Update the OS with latest patches and Prerequisites
 sudo apt update
