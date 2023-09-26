@@ -34,6 +34,7 @@
           - python3-pydrive #  python3-pydrive for backups
           - jq  #  json requirements
           - wireguard-tools #  required for pritunl vpn client
+          - gnome-sushi #  for spacebar preview
         state: present
 
     - name: Install WPS Office software
