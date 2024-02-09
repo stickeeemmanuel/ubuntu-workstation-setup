@@ -1,4 +1,3 @@
----
 #  run this playbook as root
 - name: Ansible playbook to setup Ubuntu
   hosts: localhost
@@ -37,6 +36,11 @@
           - gnome-sushi #  for spacebar preview
           - flameshot #  for screenshots
           - htop #  for system monitoring
+          - git-extras #  for git
+          - terminator  #  for terminal
+          - python3-pip #  for python packages
+          - git # for version control
+          - xclip #  for clipboard
         state: present
 
     - name: Install WPS Office software
@@ -94,3 +98,189 @@
         sudo apt-get update
         # Install PowerShell
         sudo apt-get install -y powershell
+    
+    # Automate Ubuntu 22.04 service restart after app update 
+    # Uncomment, find and replace letter i with letter a if line contains #$nrconf{restart}
+    - name: Update needrestart.conf file
+      become: true
+      lineinfile:
+        path: /etc/needrestart/needrestart.conf
+        regexp: '^#$nrconf{restart}'
+        line: '$nrconf{restart} = 'a''
+        backup: yes
+
+    - name: Update the OS with latest patches and Prerequisites
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: 'yes'
+  
+    - name: Prepare the system for VSCode installation
+      block:
+        - name: Add Microsoft's GPG key
+          ansible.builtin.apt_key:
+            url: https://packages.microsoft.com/keys/microsoft.asc
+            state: present
+
+        - name: Add Microsoft's repository
+          ansible.builtin.apt_repository:
+            repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+            state: present
+            filename: vscode
+
+        - name: Install apt-transport-https
+          ansible.builtin.apt:
+            name: apt-transport-https
+            state: present
+
+    - name: Download Termius, VSCode and Google Chrome
+      get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+      loop:
+        - { url: 'https://www.termius.com/download/linux/Termius.deb', dest: '/tmp/Termius.deb' }
+        - { url: 'https://go.microsoft.com/fwlink/?LinkID=760868', dest: '/tmp/vscode.deb' }
+        - { url: 'https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb', dest: '/tmp/google-chrome-stable_current_amd64.deb' }
+
+    - name: Install Termius, VSCode and Google Chrome
+      ansible.builtin.apt:
+        deb: "/tmp/{{ item }}"
+      loop:
+        - 'Termius.deb'
+        - 'vscode.deb'
+        - 'google-chrome-stable_current_amd64.deb'
+
+    - name: Delete downloaded files
+      file:
+        path: "/tmp/{{ item }}"
+        state: absent
+      loop:
+        - 'Termius.deb'
+        - 'vscode.deb'
+        - 'google-chrome-stable_current_amd64.deb'
+
+    - name: Install aws-cli
+      ansible.builtin.unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp
+        remote_src: yes
+      command: sudo /tmp/aws/install
+
+    - name: Delete aws-cli installation files
+      file:
+        path: "/tmp/{{ item }}"
+        state: absent
+      loop:
+        - 'awscli-exe-linux-x86_64.zip'
+        - 'aws'
+
+    - name: Install Docker
+      block:
+        - name: Install Docker Prerequisites
+          ansible.builtin.apt:
+            name: "{{ item }}"
+            state: present
+          loop:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - gnupg
+            - lsb-release
+
+        - name: Add Docker's GPG key
+          ansible.builtin.apt_key:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            state: present
+
+        - name: Add Docker's repository
+          ansible.builtin.apt_repository:
+            repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+            state: present
+            filename: docker
+          
+        - name: Install Docker
+          ansible.builtin.apt:
+            name: 
+              - docker-ce 
+              - docker-ce-cli 
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
+    - name: Install Terraform
+      block:
+        - ansible.builtin.apt:
+            name: "{{ item }}"
+            state: present
+          loop:
+            - gnupg
+            - software-properties-common
+
+        - ansible.builtin.get_url:
+            url: https://apt.releases.hashicorp.com/gpg
+            dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+        - ansible.builtin.apt_repository:
+            repo: deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
+            state: present
+            filename: hashicorp
+
+        - name: Install Terraform
+          ansible.builtin.apt:
+            name: terraform
+            state: present
+      
+        - name: Install Terraform autocomplete
+          ansible.builtin.shell: |
+            touch ~/.bashrc
+            terraform -install-autocomplete
+
+    # - name: Install Ansible
+    #   block:
+    #     - ansible.builtin.apt_repository:
+    #         repo: deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu {{ ansible_distribution_release }} main
+    #         state: present
+    #         filename: ansible
+        
+    #     - update_cache: yes
+
+    #     - ansible.builtin.apt:
+    #         name: ansible
+    #         state: present
+                
+    - name: Upgrade Ansible-lint
+      ansible.builtin.pip:
+        name: ansible-lint
+        state: latest
+
+    - name: Install Linode-cli
+      ansible.builtin.pip:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - linode-cli
+        - boto3
+        - botocore
+
+    - name: Install Joplin notes app
+      ansible.builtin.apt:
+        name: libfuse2
+        state: present
+      command: wget -O - https://raw.githubusercontent.com/laurent22/joplin/dev/Joplin_install_and_update.sh | bash
+
+    - name: Add ansible-lint to PATH
+      lineinfile:
+        path: /home/eapreko/.bashrc
+        line: 'export PATH=$PATH:/home/eapreko/.local/bin'
+
+    - name: Purge rhythmbox, thunderbird and libreoffice installation
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - rhythmbox
+        - 'thunderbird*'
+        - 'libreoffice*'
+
+    - name: Reboot the system
+      command: /sbin/reboot
