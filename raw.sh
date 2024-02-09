@@ -9,9 +9,6 @@ sed -ie '/#$nrconf{restart}/s/#//' /etc/needrestart/needrestart.conf
 sudo apt update
 sudo apt upgrade -y
 
-#  Install Ubuntu Desktop
-sudo apt install -y ubuntu-desktop
-
 #  Install other dev utilities
 #  Download and install Termius and Google Chrome
 echo "Download and install Termius and Google Chrome"
