@@ -1,6 +1,6 @@
 ---
 #  run this playbook as root
-- name: Ansible playbook to setup local Ubuntu VM
+- name: Ansible playbook to setup Ubuntu
   hosts: localhost
   connection: local
   become: true
@@ -35,6 +35,8 @@
           - jq  #  json requirements
           - wireguard-tools #  required for pritunl vpn client
           - gnome-sushi #  for spacebar preview
+          - flameshot #  for screenshots
+          - htop #  for system monitoring
         state: present
 
     - name: Install WPS Office software
@@ -65,6 +67,8 @@
         content: "HISTTIMEFORMAT=\"%F %T \"\n"
         dest: /etc/profile.d/history.sh
         mode: '0644'
+      become: true
+      become_user: eapreko
 
     - name: Install ggshield
       ansible.builtin.shell: |
